@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+if [ "$#" -ne 1 ]; then
+  echo "$0 <directory>"
+  exit 1
+fi
+
+DIR="$1"
+
+if [ ! -d "$DIR" ]; then
+  echo "'$DIR' is not real"
+  exit 1
+fi
+
+shopt -s nullglob nocaseglob
+for file in "$DIR"/*.{jpg,jpeg,webp,gif,bmp,tiff}; do
+  [ -e "$file" ] || continue
+  base="${file%.*}"
+  newfile="${base}.png"
+
+  echo "$(basename "$file") → $(basename "$newfile")"
+  
+  convert "$file" "$newfile"
+
+  if [ -f "$newfile" ]; then
+    rm -f "$file"
+  else
+    echo "failed for $file"
+  fi
+done
